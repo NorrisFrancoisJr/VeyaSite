@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/veya-logo.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VEYA | Cinematic Narrative for the Caribbean</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;700&family=Bodoni+Moda:ital,opsz,wght@1,6..96,400;1,6..96,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Geist:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+  <script type="module" crossorigin src="/assets/index-DJ8k_RUZ.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bde2llrV.css">
+</head>
+
+<body
+  class="bg-softIvory text-volcanicCharcoal antialiased overflow-x-hidden selection:bg-seaBronze/20 selection:text-volcanicCharcoal">
+  <div id="root"></div>
+
+  <!-- Subtle Noise overlay for natural texture -->
+  <svg style="display:none;">
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+    </filter>
+  </svg>
+  <div class="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] mix-blend-overlay"
+    style="filter: url(#noiseFilter);"></div>
+</body>
+
+</html>

@@ -1,0 +1,46 @@
+/** Theme overrides for
+ * Gravity Forms Framework theme.
+ *
+ * Duped class selectors are intentional to ensure specificity is higher than the base styles.
+ */
+.gform-theme--framework.gform-theme--framework {
+  --_sphc-placeholder-color: var(--colors--text--body);
+  --_sphc-font-family: var(--font--family--link-secondary);
+  --_sphc-font-size: var(--font--size--link-secondary);
+  --_sphc-font-weight: var(--font--weight--medium);
+  --gf-form-gap-y: var(--spacing--spacing--l);
+  --gf-form-gap-x: var(--spacing--spacing--l);
+  --gf-font-size-primary: var(--font--size--body-s);
+  --gf-ctrl-color: var(--colors--text--body);
+  --gf-label-space-primary: var(--wp--preset--spacing--20);
+  --gf-ctrl-label-font-weight-primary: var(--_sphc-font-weight);
+  --gf-ctrl-label-font-size-primary: var(--_sphc-font-size);
+  --gf-ctrl-textarea-resize: none;
+  --gf-ctrl-textarea-radius: 0;
+  --gf-ctrl-select-icon-position: right center;
+  --gf-ctrl-border-color: var(--colors--text--body);
+}
+
+.gform-theme--framework.gform-theme--framework ::placeholder {
+  color: var(--_sphc-placeholder-color);
+  font-family: var(--_sphc-font-family);
+  font-size: var(--_sphc-font-size);
+  font-style: normal;
+  line-height: 1.6;
+  letter-spacing: 1%;
+  text-transform: uppercase;
+}
+
+.gform-theme--framework.gform-theme--framework :is(input[type=text], input[type=tel], input[type=email], input[type=url], textarea, select) {
+  --gf-ctrl-border-width: 0;
+  --gf-ctrl-shadow: 0;
+  --gf-ctrl-radius: 0;
+  --gf-ctrl-padding-x: 0;
+  --gf-ctrl-select-padding-x: var(--gf-ctrl-padding-x);
+  --gf-local-border-block-end: 2px solid var(--gf-ctrl-border-color) !important;
+}
+
+.gform-footer {
+  justify-self: start !important;
+}
+/*# sourceMappingURL=forms.css.map */

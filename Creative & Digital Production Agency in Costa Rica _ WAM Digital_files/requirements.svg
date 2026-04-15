@@ -1,0 +1,33 @@
+<svg width="339" height="182" viewBox="0 0 339 182" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0_7772_1780" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="-1" y="-1" width="341" height="341">
+<path d="M253.907 169.272C253.907 216.015 216.015 253.907 169.272 253.907C122.528 253.907 84.6358 216.015 84.6358 169.272C84.6358 122.528 122.528 84.6358 169.272 84.6358C216.015 84.6358 253.907 122.528 253.907 169.272Z" stroke="#535354"/>
+<path d="M296.225 169.272C296.225 239.386 239.386 296.225 169.272 296.225C99.157 296.225 42.3179 239.386 42.3179 169.272C42.3179 99.157 99.157 42.3179 169.272 42.3179C239.386 42.3179 296.225 99.157 296.225 169.272Z" stroke="#535354"/>
+<path d="M338.543 169.272C338.543 262.758 262.758 338.543 169.272 338.543C75.7854 338.543 0 262.758 0 169.272C0 75.7854 75.7854 0 169.272 0C262.758 0 338.543 75.7854 338.543 169.272Z" stroke="#535354"/>
+</mask>
+<g mask="url(#mask0_7772_1780)">
+<rect opacity="0.45" width="338.543" height="338.543" fill="url(#paint0_radial_7772_1780)"/>
+</g>
+<foreignObject x="204.699" y="30.8972" width="58.8081" height="58.8079"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(10px);clip-path:url(#bgblur_0_7772_1780_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_i_7772_1780)" data-figma-bg-blur-radius="20">
+<circle cx="234.103" cy="60.3012" r="9.40397" fill="white" fill-opacity="0.1"/>
+<circle cx="234.103" cy="60.3012" r="8.90397" stroke="#929292"/>
+</g>
+<circle cx="234.103" cy="60.3011" r="4.70199" fill="#929292"/>
+<defs>
+<filter id="filter0_i_7772_1780" x="204.699" y="30.8972" width="58.8081" height="58.8079" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="-2"/>
+<feGaussianBlur stdDeviation="5"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.15 0"/>
+<feBlend mode="normal" in2="shape" result="effect1_innerShadow_7772_1780"/>
+</filter>
+<clipPath id="bgblur_0_7772_1780_clip_path" transform="translate(-204.699 -30.8972)"><circle cx="234.103" cy="60.3012" r="9.40397"/>
+</clipPath><radialGradient id="paint0_radial_7772_1780" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(303.278 126.954) rotate(170.516) scale(256.83 280.185)">
+<stop stop-color="#040404" stop-opacity="0"/>
+<stop offset="0.555183" stop-color="white"/>
+<stop offset="1" stop-color="#040404" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>
