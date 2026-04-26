@@ -51,6 +51,18 @@ function Section({ title, description, children }) {
     );
 }
 
+function formatApiError(payload) {
+    const parts = [payload.error || 'Proposal generation failed.'];
+
+    if (payload.vercelEnv || payload.gitBranch || payload.deploymentUrl) {
+        parts.push(
+            `Vercel env: ${payload.vercelEnv || 'unknown'} | Branch: ${payload.gitBranch || 'unknown'} | Deployment: ${payload.deploymentUrl || 'unknown'}`
+        );
+    }
+
+    return parts.join(' ');
+}
+
 export default function ProposalBuilder() {
     const [proposal, setProposal] = useState(() => loadStoredCustomProposalData());
     const [brief, setBrief] = useState('');
@@ -126,7 +138,7 @@ export default function ProposalBuilder() {
             const payload = await result.json();
 
             if (!result.ok) {
-                throw new Error(payload.error || 'Proposal generation failed.');
+                throw new Error(formatApiError(payload));
             }
 
             const generatedProposal = normalizeCustomProposalData({
