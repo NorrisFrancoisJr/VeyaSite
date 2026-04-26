@@ -8,7 +8,7 @@ const proposalSchema = {
         proposal: {
             type: 'object',
             additionalProperties: false,
-            required: ['slug', 'client', 'title', 'preparedBy', 'contact', 'clientLogo', 'pages'],
+            required: ['slug', 'client', 'title', 'preparedBy', 'contact', 'clientLogo', 'brand', 'pages'],
             properties: {
                 slug: { type: 'string' },
                 client: { type: 'string' },
@@ -16,159 +16,43 @@ const proposalSchema = {
                 preparedBy: { type: 'string' },
                 contact: { type: 'string' },
                 clientLogo: { type: 'string' },
-                pages: {
+                brand: {
                     type: 'object',
                     additionalProperties: false,
-                    required: ['overview', 'messaging', 'strategy', 'investment', 'nextSteps'],
+                    required: ['primary', 'accent', 'background', 'muted'],
                     properties: {
-                        overview: {
-                            type: 'object',
-                            additionalProperties: false,
-                            required: ['eyebrow', 'page', 'title', 'kicker', 'paragraphs'],
-                            properties: {
-                                eyebrow: { type: 'string' },
-                                page: { type: 'string' },
-                                title: { type: 'string' },
-                                kicker: { type: 'string' },
-                                paragraphs: {
-                                    type: 'array',
-                                    items: { type: 'string' },
-                                },
-                            },
-                        },
-                        messaging: {
-                            type: 'object',
-                            additionalProperties: false,
-                            required: ['eyebrow', 'page', 'kicker', 'title', 'frameworks'],
-                            properties: {
-                                eyebrow: { type: 'string' },
-                                page: { type: 'string' },
-                                kicker: { type: 'string' },
-                                title: { type: 'string' },
-                                frameworks: {
-                                    type: 'array',
-                                    items: {
-                                        type: 'object',
-                                        additionalProperties: false,
-                                        required: ['title', 'subtitle', 'sections'],
-                                        properties: {
-                                            title: { type: 'string' },
-                                            subtitle: { type: 'string' },
-                                            sections: {
-                                                type: 'array',
-                                                items: {
-                                                    type: 'object',
-                                                    additionalProperties: false,
-                                                    required: ['label', 'text'],
-                                                    properties: {
-                                                        label: { type: 'string' },
-                                                        text: { type: 'string' },
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        strategy: {
-                            type: 'object',
-                            additionalProperties: false,
-                            required: ['eyebrow', 'page', 'kicker', 'title', 'intro', 'phases'],
-                            properties: {
-                                eyebrow: { type: 'string' },
-                                page: { type: 'string' },
-                                kicker: { type: 'string' },
-                                title: { type: 'string' },
-                                intro: { type: 'string' },
-                                phases: {
-                                    type: 'array',
-                                    items: {
-                                        type: 'object',
-                                        additionalProperties: false,
-                                        required: ['label', 'title', 'target', 'goal'],
-                                        properties: {
-                                            label: { type: 'string' },
-                                            title: { type: 'string' },
-                                            target: { type: 'string' },
-                                            goal: { type: 'string' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        investment: {
-                            type: 'object',
-                            additionalProperties: false,
-                            required: [
-                                'eyebrow',
-                                'page',
-                                'kicker',
-                                'title',
-                                'intro',
-                                'totalLabel',
-                                'total',
-                                'includedTitle',
-                                'included',
-                                'paymentTitle',
-                                'paymentSchedule',
-                            ],
-                            properties: {
-                                eyebrow: { type: 'string' },
-                                page: { type: 'string' },
-                                kicker: { type: 'string' },
-                                title: { type: 'string' },
-                                intro: { type: 'string' },
-                                totalLabel: { type: 'string' },
-                                total: { type: 'string' },
-                                includedTitle: { type: 'string' },
-                                included: {
-                                    type: 'array',
-                                    items: {
-                                        type: 'object',
-                                        additionalProperties: false,
-                                        required: ['title', 'text'],
-                                        properties: {
-                                            title: { type: 'string' },
-                                            text: { type: 'string' },
-                                        },
-                                    },
-                                },
-                                paymentTitle: { type: 'string' },
-                                paymentSchedule: {
-                                    type: 'array',
-                                    items: {
-                                        type: 'object',
-                                        additionalProperties: false,
-                                        required: ['milestone', 'detail'],
-                                        properties: {
-                                            milestone: { type: 'string' },
-                                            detail: { type: 'string' },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        nextSteps: {
-                            type: 'object',
-                            additionalProperties: false,
-                            required: ['eyebrow', 'page', 'kicker', 'title', 'intro', 'steps'],
-                            properties: {
-                                eyebrow: { type: 'string' },
-                                page: { type: 'string' },
-                                kicker: { type: 'string' },
-                                title: { type: 'string' },
-                                intro: { type: 'string' },
-                                steps: {
-                                    type: 'array',
-                                    items: {
-                                        type: 'object',
-                                        additionalProperties: false,
-                                        required: ['number', 'title', 'text'],
-                                        properties: {
-                                            number: { type: 'string' },
-                                            title: { type: 'string' },
-                                            text: { type: 'string' },
+                        primary: { type: 'string' },
+                        accent: { type: 'string' },
+                        background: { type: 'string' },
+                        muted: { type: 'string' },
+                    },
+                },
+                pages: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        additionalProperties: false,
+                        required: ['page', 'eyebrow', 'title', 'kicker', 'intro', 'layout', 'callout', 'sections'],
+                        properties: {
+                            page: { type: 'string' },
+                            eyebrow: { type: 'string' },
+                            title: { type: 'string' },
+                            kicker: { type: 'string' },
+                            intro: { type: 'string' },
+                            layout: { type: 'string' },
+                            callout: { type: 'string' },
+                            sections: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    additionalProperties: false,
+                                    required: ['heading', 'body', 'items'],
+                                    properties: {
+                                        heading: { type: 'string' },
+                                        body: { type: 'string' },
+                                        items: {
+                                            type: 'array',
+                                            items: { type: 'string' },
                                         },
                                     },
                                 },
@@ -217,18 +101,69 @@ function extractOutputText(payload) {
     return content?.text || '';
 }
 
-function cleanProposal(proposal) {
+function clampPageCount(value) {
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isNaN(parsed)) {
+        return 4;
+    }
+
+    return Math.min(Math.max(parsed, 1), 10);
+}
+
+function cleanText(value, fallback = '') {
+    return String(value || fallback).trim();
+}
+
+function cleanBrand(brand = {}, fallback = {}) {
     return {
-        ...proposal,
+        primary: cleanText(brand.primary, fallback.primary || '#2f3d2f'),
+        accent: cleanText(brand.accent, fallback.accent || '#8c7a4f'),
+        background: cleanText(brand.background, fallback.background || '#f7f5ef'),
+        muted: cleanText(brand.muted, fallback.muted || '#d8d2c2'),
+    };
+}
+
+function cleanProposal(proposal, { requestedPageCount, logoDataUrl, brandColors }) {
+    const pages = Array.isArray(proposal.pages) ? proposal.pages : [];
+    const cleanedPages = pages.slice(0, requestedPageCount).map((page, index) => ({
+        page: String(index + 1).padStart(2, '0'),
+        eyebrow: cleanText(page.eyebrow, index === 0 ? 'Proposal' : 'Section'),
+        title: cleanText(page.title, index === 0 ? proposal.title : `Page ${index + 1}`),
+        kicker: cleanText(page.kicker),
+        intro: cleanText(page.intro),
+        layout: cleanText(page.layout, index === 0 ? 'cover' : 'feature'),
+        callout: cleanText(page.callout),
+        sections: (Array.isArray(page.sections) ? page.sections : []).map((section) => ({
+            heading: cleanText(section.heading),
+            body: cleanText(section.body),
+            items: (Array.isArray(section.items) ? section.items : [])
+                .map((item) => cleanText(item))
+                .filter(Boolean),
+        })).filter((section) => section.heading || section.body || section.items.length),
+    }));
+
+    while (cleanedPages.length < requestedPageCount) {
+        cleanedPages.push({
+            page: String(cleanedPages.length + 1).padStart(2, '0'),
+            eyebrow: 'Proposal',
+            title: `Page ${cleanedPages.length + 1}`,
+            kicker: '',
+            intro: '',
+            layout: 'feature',
+            callout: '',
+            sections: [],
+        });
+    }
+
+    return {
         slug: 'custom',
-        pages: {
-            ...proposal.pages,
-            overview: { ...proposal.pages.overview, page: '01' },
-            messaging: { ...proposal.pages.messaging, page: '02' },
-            strategy: { ...proposal.pages.strategy, page: '03' },
-            investment: { ...proposal.pages.investment, page: '04' },
-            nextSteps: { ...proposal.pages.nextSteps, page: '05' },
-        },
+        client: cleanText(proposal.client, 'Client'),
+        title: cleanText(proposal.title, 'Client Proposal'),
+        preparedBy: cleanText(proposal.preparedBy, 'Norris Francois Jr.'),
+        contact: cleanText(proposal.contact, 'contact@norrisfrancoisjr.com'),
+        clientLogo: logoDataUrl || '',
+        brand: cleanBrand(proposal.brand, brandColors),
+        pages: cleanedPages,
     };
 }
 
@@ -257,39 +192,58 @@ export default async function handler(request, response) {
         return;
     }
 
-    const brief = String(body.brief || '').trim();
-    const existingProposal = body.proposal || {};
-    const instructions = String(body.instructions || '').trim();
+    const brief = cleanText(body.brief);
+    const instructions = cleanText(body.instructions);
+    const requestedPageCount = clampPageCount(body.pageCount);
+    const brandColors = cleanBrand(body.brandColors || {});
+    const logoName = cleanText(body.logoName);
+    const hasLogo = Boolean(body.logoDataUrl);
 
-    if (brief.length < 40) {
+    if (brief.length < 20) {
         response.status(400).json({
-            error: 'Paste a fuller brief before generating a proposal.',
+            error: 'Paste a brief before generating.',
         });
         return;
     }
 
     const prompt = `
-You are Norris Francois Jr.'s proposal strategist and copywriter. Build a polished five-page landscape proposal from a raw client brief.
+You are Norris Francois Jr.'s senior proposal strategist, copywriter, and document architect.
 
-Keep the offer faithful to the brief. You may clean flow, clarify strategy, and write stronger copy, but do not invent pricing, dates, deliverables, or payment terms unless the brief omits them. If a detail is missing, make a conservative professional assumption and add it to notes.
+Build a polished landscape PDF document from the raw brief. It may be a proposal, brand guide, campaign plan, scope document, or strategic pitch depending on what the brief asks for. Do not force every output into the same structure.
 
-The output must fit this exact proposal structure:
-Page 1: cover overview with three concise paragraphs.
-Page 2: two video/content concepts. Each concept must have exactly three sections with labels "THE CREATIVE CONCEPT", "Sample Script", and "THE VISUALS". Sample Script should be written as a client-ready voiceover or ad read with paragraph breaks.
-Page 3: two strategic phases with target and goal.
-Page 4: investment, four included items, and three payment milestones.
-Page 5: four next steps.
+Default behavior:
+- Create exactly ${requestedPageCount} pages.
+- If the user did not specify page count, ${requestedPageCount} is the default.
+- Keep the offer faithful to the brief.
+- You may clean flow, sharpen copy, infer section order, and make the document feel more premium.
+- Do not invent hard pricing, dates, deliverables, guarantees, or payment terms unless the brief clearly implies them.
+- If important details are missing, make conservative assumptions and list them in notes.
+- Write concise, client-ready copy that fits landscape pages. Avoid long walls of text.
 
-Default preparedBy to "Norris Francois Jr." and contact to "contact@norrisfrancoisjr.com" unless the brief says otherwise.
+Document architecture:
+- Decide the best page titles and section structure for this brief.
+- Page 1 should function as a strong cover/opening page.
+- Later pages should prioritize clarity, sales flow, deliverables, investment, timeline, terms, or next steps only when relevant.
+- Each page should have 2-4 sections.
+- Use callout for a short high-emphasis line when useful; otherwise return an empty string.
+- layout can be one of: cover, feature, grid, timeline, investment, closing.
+
+Brand:
+- Use the uploaded logo colors as directional inspiration when available.
+- Logo uploaded: ${hasLogo ? 'yes' : 'no'}
+- Logo file name: ${logoName || 'none'}
+- Suggested brand colors: ${JSON.stringify(brandColors)}
+- Return accessible hex colors in brand.primary, brand.accent, brand.background, and brand.muted.
+
+Identity:
+- Default preparedBy to "Norris Francois Jr."
+- Default contact to "contact@norrisfrancoisjr.com"
 
 Raw brief:
 ${brief}
 
-Additional instructions:
+Extra direction:
 ${instructions || 'None'}
-
-Current draft to improve or replace:
-${JSON.stringify(existingProposal, null, 2)}
 `;
 
     const openAiResponse = await fetch('https://api.openai.com/v1/responses', {
@@ -327,7 +281,11 @@ ${JSON.stringify(existingProposal, null, 2)}
     try {
         const generated = JSON.parse(text);
         response.status(200).json({
-            proposal: cleanProposal(generated.proposal),
+            proposal: cleanProposal(generated.proposal, {
+                requestedPageCount,
+                logoDataUrl: body.logoDataUrl || '',
+                brandColors,
+            }),
             notes: generated.notes || [],
             model: MODEL,
         });

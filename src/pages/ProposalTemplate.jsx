@@ -40,6 +40,72 @@ function ProposalActions() {
     );
 }
 
+function splitParagraphs(text) {
+    return String(text || '')
+        .split(/\n{2,}/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean);
+}
+
+function GenericProposal({ proposal }) {
+    const brand = proposal.brand || {};
+    const style = {
+        '--proposal-charcoal': brand.primary || '#2f3d2f',
+        '--proposal-earth': brand.accent || '#8c7a4f',
+        '--proposal-page': brand.muted || '#d8d2c2',
+        '--proposal-paper': brand.background || '#f7f5ef',
+    };
+
+    return (
+        <main className="proposal-template proposal-template-generic" style={style} aria-label={`${proposal.title} proposal`}>
+            <ProposalActions />
+
+            {proposal.pages.map((page, index) => (
+                <section
+                    key={`${page.page}-${page.title}`}
+                    className={`proposal-page proposal-generic-page proposal-generic-page-${page.layout || 'feature'} ${index === 0 ? 'proposal-generic-cover' : ''}`}
+                >
+                    <PageHeader eyebrow={page.eyebrow} page={page.page} />
+
+                    <div className="proposal-generic-heading">
+                        {index === 0 && proposal.clientLogo ? (
+                            <img className="proposal-generic-logo" src={proposal.clientLogo} alt={`${proposal.client} logo`} />
+                        ) : null}
+                        <p>{index === 0 ? proposal.client : page.kicker}</p>
+                        <h1>{index === 0 ? proposal.title : page.title}</h1>
+                        {index === 0 && page.title !== proposal.title ? <h2>{page.title}</h2> : null}
+                        {page.intro ? <span>{page.intro}</span> : null}
+                    </div>
+
+                    <div className="proposal-generic-content">
+                        {page.sections.map((section) => (
+                            <article key={`${page.page}-${section.heading}`} className="proposal-generic-section">
+                                {section.heading ? <h3>{section.heading}</h3> : null}
+                                {splitParagraphs(section.body).map((paragraph) => (
+                                    <p key={paragraph}>{paragraph}</p>
+                                ))}
+                                {section.items.length ? (
+                                    <ul>
+                                        {section.items.map((item) => (
+                                            <li key={item}>{item}</li>
+                                        ))}
+                                    </ul>
+                                ) : null}
+                            </article>
+                        ))}
+                    </div>
+
+                    {page.callout ? (
+                        <blockquote className="proposal-generic-callout">{page.callout}</blockquote>
+                    ) : null}
+
+                    <PageFooter proposal={proposal} />
+                </section>
+            ))}
+        </main>
+    );
+}
+
 function SabifiProposal({ proposal }) {
     const { vision, focus, deliverables, investment, nextSteps } = proposal.pages;
 
@@ -360,7 +426,7 @@ export default function ProposalTemplate() {
     }
 
     if (selectedProposal.slug === customProposalSlug) {
-        return <SafeHavenProposal proposal={selectedProposal} />;
+        return <GenericProposal proposal={selectedProposal} />;
     }
 
     return <SabifiProposal proposal={selectedProposal} />;

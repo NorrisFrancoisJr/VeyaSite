@@ -132,6 +132,18 @@
     gap: 16px;
 }
 
+.proposal-builder-ai-panel--flex {
+    grid-template-columns: 1fr 1fr;
+}
+
+.proposal-builder-controls {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 160px minmax(260px, 1fr) minmax(260px, 1.1fr);
+    gap: 16px;
+    align-items: end;
+}
+
 .proposal-builder-ai-actions {
     display: flex;
     grid-column: 1 / -1;
@@ -260,9 +272,106 @@
     gap: 12px;
 }
 
+.proposal-builder-logo-preview {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 14px;
+    align-items: center;
+    min-height: 76px;
+    border: 1px solid rgba(46, 46, 46, 0.14);
+    border-radius: 8px;
+    background: rgba(209, 208, 203, 0.22);
+    padding: 12px;
+}
+
+.proposal-builder-logo-preview img {
+    max-width: 96px;
+    max-height: 52px;
+    object-fit: contain;
+}
+
+.proposal-builder-logo-preview span {
+    display: block;
+    color: #2e2e2e;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.proposal-builder-logo-preview small {
+    display: block;
+    margin-top: 6px;
+    color: #6e6353;
+    font-size: 17px;
+    line-height: 1;
+}
+
+.proposal-builder-draft-summary {
+    display: grid;
+    grid-template-columns: 1.2fr 1.5fr 0.5fr;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.proposal-builder-draft-summary div,
+.proposal-builder-page-list article {
+    border: 1px solid rgba(46, 46, 46, 0.12);
+    border-radius: 8px;
+    background: rgba(209, 208, 203, 0.16);
+    padding: 16px;
+}
+
+.proposal-builder-draft-summary span,
+.proposal-builder-page-list span {
+    display: block;
+    margin-bottom: 8px;
+    color: #6e6353;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.proposal-builder-draft-summary strong {
+    display: block;
+    color: #2e2e2e;
+    font-family: "Bodoni Moda", serif;
+    font-size: 28px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.proposal-builder-page-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.proposal-builder-page-list h3 {
+    margin: 0 0 10px;
+    color: #2e2e2e;
+    font-family: "Bodoni Moda", serif;
+    font-size: 25px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.proposal-builder-page-list p {
+    margin: 0;
+    color: #6e6353;
+    font-size: 18px;
+    line-height: 1.1;
+}
+
 @media (max-width: 900px) {
     .proposal-builder-hero,
     .proposal-builder-ai-panel,
+    .proposal-builder-controls,
+    .proposal-builder-draft-summary,
+    .proposal-builder-page-list,
     .proposal-builder-grid--two,
     .proposal-builder-grid--three {
         grid-template-columns: 1fr;

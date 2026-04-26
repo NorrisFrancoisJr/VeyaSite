@@ -18,17 +18,6 @@ import {
     saveStoredCustomProposalData,
 } from '../proposals/customProposal';
 
-function setIn(target, path, value) {
-    if (path.length === 0) {
-        return value;
-    }
-
-    const [head, ...rest] = path;
-    const clone = Array.isArray(target) ? [...target] : { ...target };
-    clone[head] = setIn(target?.[head], rest, value);
-    return clone;
-}
-
 function Field({ label, children, hint }) {
     return (
         <label className="proposal-builder-field">
@@ -54,6 +43,10 @@ function Section({ title, description, children }) {
 function formatApiError(payload) {
     const parts = [payload.error || 'Proposal generation failed.'];
 
+    if (payload.detail) {
+        parts.push(String(payload.detail).slice(0, 420));
+    }
+
     if (payload.vercelEnv || payload.gitBranch || payload.deploymentUrl) {
         parts.push(
             `Vercel env: ${payload.vercelEnv || 'unknown'} | Branch: ${payload.gitBranch || 'unknown'} | Deployment: ${payload.deploymentUrl || 'unknown'}`
@@ -63,43 +56,124 @@ function formatApiError(payload) {
     return parts.join(' ');
 }
 
+function readImageDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = src;
+    });
+}
+
+function toHex(value) {
+    return Math.max(0, Math.min(255, value)).toString(16).padStart(2, '0');
+}
+
+function rgbToHex([red, green, blue]) {
+    return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+}
+
+function getSaturation([red, green, blue]) {
+    const max = Math.max(red, green, blue);
+    const min = Math.min(red, green, blue);
+    return max === 0 ? 0 : (max - min) / max;
+}
+
+async function extractLogoPalette(dataUrl) {
+    const image = await loadImage(dataUrl);
+    const canvas = document.createElement('canvas');
+    const size = 72;
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    context.drawImage(image, 0, 0, size, size);
+    const pixels = context.getImageData(0, 0, size, size).data;
+    const buckets = new Map();
+
+    for (let index = 0; index < pixels.length; index += 16) {
+        const alpha = pixels[index + 3];
+        if (alpha < 150) {
+            continue;
+        }
+
+        const color = [
+            Math.round(pixels[index] / 24) * 24,
+            Math.round(pixels[index + 1] / 24) * 24,
+            Math.round(pixels[index + 2] / 24) * 24,
+        ];
+        const brightness = (color[0] + color[1] + color[2]) / 3;
+        if (brightness < 24 || brightness > 238) {
+            continue;
+        }
+
+        const key = color.join(',');
+        buckets.set(key, (buckets.get(key) || 0) + 1);
+    }
+
+    const colors = [...buckets.entries()]
+        .map(([key, count]) => ({ color: key.split(',').map(Number), count }))
+        .sort((left, right) => right.count - left.count)
+        .slice(0, 8);
+
+    const saturated = colors.find(({ color }) => getSaturation(color) > 0.22)?.color;
+    const primary = colors[0]?.color || [47, 61, 47];
+    const accent = saturated || colors[1]?.color || [140, 122, 79];
+
+    return {
+        primary: rgbToHex(primary),
+        accent: rgbToHex(accent),
+        background: '#f7f5ef',
+        muted: '#d8d2c2',
+    };
+}
+
 export default function ProposalBuilder() {
     const [proposal, setProposal] = useState(() => loadStoredCustomProposalData());
     const [brief, setBrief] = useState('');
     const [instructions, setInstructions] = useState('');
+    const [pageCount, setPageCount] = useState(4);
+    const [logoName, setLogoName] = useState('');
     const [notes, setNotes] = useState([]);
     const [status, setStatus] = useState('');
     const [error, setError] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isRenderingPdf, setIsRenderingPdf] = useState(false);
-    const previewUrl = useMemo(
-        () => `/proposal-template?proposal=${customProposalSlug}`,
-        [],
-    );
-    const printUrl = useMemo(
-        () => `/proposal-template?proposal=${customProposalSlug}&print=1`,
-        [],
-    );
+    const previewUrl = useMemo(() => `/proposal-template?proposal=${customProposalSlug}`, []);
+    const printUrl = useMemo(() => `/proposal-template?proposal=${customProposalSlug}&print=1`, []);
 
     useEffect(() => {
         saveStoredCustomProposalData(proposal);
     }, [proposal]);
 
-    function update(path, value) {
-        setProposal((current) => setIn(current, path, value));
-    }
-
-    function handleLogoUpload(event) {
+    async function handleLogoUpload(event) {
         const file = event.target.files?.[0];
         if (!file) {
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = () => {
-            update(['clientLogo'], reader.result);
-        };
-        reader.readAsDataURL(file);
+        try {
+            const dataUrl = await readImageDataUrl(file);
+            const palette = await extractLogoPalette(dataUrl);
+            setLogoName(file.name);
+            setProposal((current) => normalizeCustomProposalData({
+                ...current,
+                clientLogo: dataUrl,
+                brand: palette,
+            }));
+            setStatus('Logo added. I pulled a starting color direction from it.');
+            setError('');
+        } catch (uploadError) {
+            setError('The logo could not be read. Try a PNG, JPG, or SVG file.');
+        }
     }
 
     function handleDownloadJson() {
@@ -117,8 +191,8 @@ export default function ProposalBuilder() {
         setStatus('');
         setNotes([]);
 
-        if (brief.trim().length < 40) {
-            setError('Paste a fuller brief before generating.');
+        if (brief.trim().length < 20) {
+            setError('Paste a brief before generating.');
             return;
         }
 
@@ -131,7 +205,10 @@ export default function ProposalBuilder() {
                 body: JSON.stringify({
                     brief,
                     instructions,
-                    proposal,
+                    pageCount,
+                    logoName,
+                    logoDataUrl: proposal.clientLogo,
+                    brandColors: proposal.brand,
                 }),
             });
 
@@ -141,14 +218,10 @@ export default function ProposalBuilder() {
                 throw new Error(formatApiError(payload));
             }
 
-            const generatedProposal = normalizeCustomProposalData({
-                ...payload.proposal,
-                clientLogo: proposal.clientLogo || payload.proposal.clientLogo,
-            });
-
+            const generatedProposal = normalizeCustomProposalData(payload.proposal);
             setProposal(generatedProposal);
             setNotes(payload.notes || []);
-            setStatus(`Generated with ${payload.model || 'OpenAI'}. Review the page sections before sending.`);
+            setStatus(`Generated ${generatedProposal.pages.length} page${generatedProposal.pages.length === 1 ? '' : 's'} with ${payload.model || 'OpenAI'}.`);
         } catch (generationError) {
             setError(generationError.message);
         } finally {
@@ -209,7 +282,9 @@ export default function ProposalBuilder() {
         reader.onload = () => {
             try {
                 setProposal(normalizeCustomProposalData(JSON.parse(String(reader.result))));
-            } catch (error) {
+                setStatus('JSON imported.');
+                setError('');
+            } catch (importError) {
                 window.alert('That JSON file could not be imported.');
             }
         };
@@ -220,22 +295,22 @@ export default function ProposalBuilder() {
         setProposal(createDefaultCustomProposalData());
         setBrief('');
         setInstructions('');
+        setPageCount(4);
+        setLogoName('');
         setNotes([]);
         setStatus('');
         setError('');
     }
-
-    const { overview, messaging, strategy, investment, nextSteps } = proposal.pages;
 
     return (
         <main className="proposal-builder">
             <header className="proposal-builder-hero">
                 <div>
                     <p>Proposal Builder</p>
-                    <h1>Build a client proposal from a raw brief.</h1>
+                    <h1>Turn a rough brief into a finished PDF.</h1>
                     <span>
-                        Paste the client context, generate the first draft, tighten the fields, then
-                        download the proposal as a PDF.
+                        Add the client context, optional direction, page count, and logo. The AI
+                        decides the structure and writes the document.
                     </span>
                 </div>
 
@@ -268,31 +343,60 @@ export default function ProposalBuilder() {
                 </div>
             </header>
 
-            <Section title="AI Brief" description="Paste the same kind of context you would give in chat.">
-                <div className="proposal-builder-ai-panel">
-                    <Field label="Raw Brief">
+            <Section title="Build The Document" description="This is intentionally loose. Give it the kind of brief you would give me in chat.">
+                <div className="proposal-builder-ai-panel proposal-builder-ai-panel--flex">
+                    <Field label="Brief">
                         <textarea
-                            rows={12}
+                            rows={14}
                             value={brief}
                             onChange={(event) => setBrief(event.target.value)}
-                            placeholder="Client, offer, goals, audience, deliverables, price, payment terms, brand tone, page notes..."
+                            placeholder="Client, goal, offer, audience, deliverables, price, payment terms, tone, constraints, anything that matters..."
                         />
                     </Field>
+
                     <Field label="Extra Direction">
                         <textarea
-                            rows={12}
+                            rows={14}
                             value={instructions}
                             onChange={(event) => setInstructions(event.target.value)}
-                            placeholder="Make it more premium, add a stronger cover, keep payment terms phased, use a confident but warm voice..."
+                            placeholder="Premium and minimal. Use more whitespace. Make the cover stronger. Default to 4 pages unless I specify otherwise..."
                         />
                     </Field>
+
+                    <div className="proposal-builder-controls">
+                        <Field label="Pages" hint="Default is 4. Use 1-10 pages when the brief needs it.">
+                            <input
+                                type="number"
+                                min="1"
+                                max="10"
+                                value={pageCount}
+                                onChange={(event) => setPageCount(event.target.value)}
+                            />
+                        </Field>
+
+                        <Field label="Optional Logo" hint={logoName || 'PNG, JPG, or SVG. Stored only in this browser draft.'}>
+                            <input type="file" accept="image/*" onChange={handleLogoUpload} />
+                        </Field>
+
+                        {proposal.clientLogo ? (
+                            <div className="proposal-builder-logo-preview">
+                                <img src={proposal.clientLogo} alt="Uploaded client logo" />
+                                <div>
+                                    <span>Logo loaded</span>
+                                    <small>{proposal.brand.primary} / {proposal.brand.accent}</small>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+
                     <div className="proposal-builder-ai-actions">
                         <button type="button" onClick={handleGenerateProposal} disabled={isGenerating}>
                             {isGenerating ? <Loader2 className="proposal-builder-spin" size={18} /> : <Sparkles size={18} />}
-                            Generate Proposal
+                            Generate PDF Draft
                         </button>
                         <span>No database. Drafts live in this browser until cleared or overwritten.</span>
                     </div>
+
                     {status ? <p className="proposal-builder-status">{status}</p> : null}
                     {error ? <p className="proposal-builder-error">{error}</p> : null}
                     {notes.length ? (
@@ -306,341 +410,29 @@ export default function ProposalBuilder() {
                 </div>
             </Section>
 
-            <Section title="General" description="These fields drive the proposal identity and footer.">
-                <div className="proposal-builder-grid proposal-builder-grid--three">
-                    <Field label="Client Name">
-                        <input
-                            value={proposal.client}
-                            onChange={(event) => update(['client'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Proposal Title">
-                        <input
-                            value={proposal.title}
-                            onChange={(event) => update(['title'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Prepared By">
-                        <input
-                            value={proposal.preparedBy}
-                            onChange={(event) => update(['preparedBy'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Contact Email">
-                        <input
-                            value={proposal.contact}
-                            onChange={(event) => update(['contact'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Logo URL or data">
-                        <input
-                            value={proposal.clientLogo || ''}
-                            onChange={(event) => update(['clientLogo'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Upload Logo" hint="Uploads are stored in the browser for this draft.">
-                        <input type="file" accept="image/*" onChange={handleLogoUpload} />
-                    </Field>
-                </div>
-            </Section>
-
-            <Section title="Page 1: Cover" description="Client framing, opening title, and the three overview paragraphs.">
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    <Field label="Top Label">
-                        <input
-                            value={overview.eyebrow}
-                            onChange={(event) => update(['pages', 'overview', 'eyebrow'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Kicker">
-                        <input
-                            value={overview.kicker}
-                            onChange={(event) => update(['pages', 'overview', 'kicker'], event.target.value)}
-                        />
-                    </Field>
-                </div>
-
-                <Field label="Main Heading">
-                    <input
-                        value={overview.title}
-                        onChange={(event) => update(['pages', 'overview', 'title'], event.target.value)}
-                    />
-                </Field>
-
-                {overview.paragraphs.map((paragraph, index) => (
-                    <Field key={index} label={`Overview Paragraph ${index + 1}`}>
-                        <textarea
-                            rows={4}
-                            value={paragraph}
-                            onChange={(event) => update(['pages', 'overview', 'paragraphs', index], event.target.value)}
-                        />
-                    </Field>
-                ))}
-            </Section>
-
-            <Section title="Page 2: Video Concepts" description="Each card uses a concept, a sample script, and a visuals block.">
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    <Field label="Top Label">
-                        <input
-                            value={messaging.eyebrow}
-                            onChange={(event) => update(['pages', 'messaging', 'eyebrow'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Kicker">
-                        <input
-                            value={messaging.kicker}
-                            onChange={(event) => update(['pages', 'messaging', 'kicker'], event.target.value)}
-                        />
-                    </Field>
-                </div>
-
-                <Field label="Page Heading">
-                    <input
-                        value={messaging.title}
-                        onChange={(event) => update(['pages', 'messaging', 'title'], event.target.value)}
-                    />
-                </Field>
-
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    {messaging.frameworks.map((framework, frameworkIndex) => (
-                        <div key={frameworkIndex} className="proposal-builder-card">
-                            <Field label="Card Label">
-                                <input
-                                    value={framework.subtitle}
-                                    onChange={(event) => update(['pages', 'messaging', 'frameworks', frameworkIndex, 'subtitle'], event.target.value)}
-                                />
-                            </Field>
-                            <Field label="Card Title">
-                                <input
-                                    value={framework.title}
-                                    onChange={(event) => update(['pages', 'messaging', 'frameworks', frameworkIndex, 'title'], event.target.value)}
-                                />
-                            </Field>
-
-                            {framework.sections.map((section, sectionIndex) => (
-                                <Field
-                                    key={sectionIndex}
-                                    label={section.label}
-                                    hint={section.label === 'Sample Script' ? 'Separate paragraphs with a blank line.' : undefined}
-                                >
-                                    <textarea
-                                        rows={section.label === 'Sample Script' ? 10 : 4}
-                                        value={section.text}
-                                        onChange={(event) => update(['pages', 'messaging', 'frameworks', frameworkIndex, 'sections', sectionIndex, 'text'], event.target.value)}
-                                    />
-                                </Field>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-            </Section>
-
-            <Section title="Page 3: Strategy" description="Use these blocks for phase positioning, target, and business goal.">
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    <Field label="Top Label">
-                        <input
-                            value={strategy.eyebrow}
-                            onChange={(event) => update(['pages', 'strategy', 'eyebrow'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Kicker">
-                        <input
-                            value={strategy.kicker}
-                            onChange={(event) => update(['pages', 'strategy', 'kicker'], event.target.value)}
-                        />
-                    </Field>
-                </div>
-
-                <Field label="Page Heading">
-                    <input
-                        value={strategy.title}
-                        onChange={(event) => update(['pages', 'strategy', 'title'], event.target.value)}
-                    />
-                </Field>
-
-                <Field label="Intro Paragraph">
-                    <textarea
-                        rows={3}
-                        value={strategy.intro}
-                        onChange={(event) => update(['pages', 'strategy', 'intro'], event.target.value)}
-                    />
-                </Field>
-
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    {strategy.phases.map((phase, phaseIndex) => (
-                        <div key={phaseIndex} className="proposal-builder-card">
-                            <Field label="Phase Label">
-                                <input
-                                    value={phase.label}
-                                    onChange={(event) => update(['pages', 'strategy', 'phases', phaseIndex, 'label'], event.target.value)}
-                                />
-                            </Field>
-                            <Field label="Phase Title">
-                                <input
-                                    value={phase.title}
-                                    onChange={(event) => update(['pages', 'strategy', 'phases', phaseIndex, 'title'], event.target.value)}
-                                />
-                            </Field>
-                            <Field label="Target">
-                                <input
-                                    value={phase.target}
-                                    onChange={(event) => update(['pages', 'strategy', 'phases', phaseIndex, 'target'], event.target.value)}
-                                />
-                            </Field>
-                            <Field label="Goal">
-                                <textarea
-                                    rows={5}
-                                    value={phase.goal}
-                                    onChange={(event) => update(['pages', 'strategy', 'phases', phaseIndex, 'goal'], event.target.value)}
-                                />
-                            </Field>
-                        </div>
-                    ))}
-                </div>
-            </Section>
-
-            <Section title="Page 4: Investment" description="Package positioning, included work, and payment schedule.">
-                <div className="proposal-builder-grid proposal-builder-grid--three">
-                    <Field label="Top Label">
-                        <input
-                            value={investment.eyebrow}
-                            onChange={(event) => update(['pages', 'investment', 'eyebrow'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Kicker">
-                        <input
-                            value={investment.kicker}
-                            onChange={(event) => update(['pages', 'investment', 'kicker'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Total Investment">
-                        <input
-                            value={investment.total}
-                            onChange={(event) => update(['pages', 'investment', 'total'], event.target.value)}
-                        />
-                    </Field>
-                </div>
-
-                <Field label="Page Heading">
-                    <input
-                        value={investment.title}
-                        onChange={(event) => update(['pages', 'investment', 'title'], event.target.value)}
-                    />
-                </Field>
-
-                <Field label="Intro Paragraph">
-                    <textarea
-                        rows={3}
-                        value={investment.intro}
-                        onChange={(event) => update(['pages', 'investment', 'intro'], event.target.value)}
-                    />
-                </Field>
-
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    <div className="proposal-builder-card">
-                        <h3>Included</h3>
-                        {investment.included.map((item, itemIndex) => (
-                            <div key={itemIndex} className="proposal-builder-mini-stack">
-                                <Field label={`Item ${itemIndex + 1} Title`}>
-                                    <input
-                                        value={item.title}
-                                        onChange={(event) => update(['pages', 'investment', 'included', itemIndex, 'title'], event.target.value)}
-                                    />
-                                </Field>
-                                <Field label={`Item ${itemIndex + 1} Text`}>
-                                    <textarea
-                                        rows={3}
-                                        value={item.text}
-                                        onChange={(event) => update(['pages', 'investment', 'included', itemIndex, 'text'], event.target.value)}
-                                    />
-                                </Field>
-                            </div>
-                        ))}
+            <Section title="Current Draft" description="The editable source is the brief. Regenerate when you want a different structure or page count.">
+                <div className="proposal-builder-draft-summary">
+                    <div>
+                        <span>Client</span>
+                        <strong>{proposal.client}</strong>
                     </div>
-
-                    <div className="proposal-builder-card">
-                        <Field label="Payment Schedule Heading">
-                            <input
-                                value={investment.paymentTitle}
-                                onChange={(event) => update(['pages', 'investment', 'paymentTitle'], event.target.value)}
-                            />
-                        </Field>
-
-                        {investment.paymentSchedule.map((item, itemIndex) => (
-                            <div key={itemIndex} className="proposal-builder-mini-stack">
-                                <Field label={`Milestone ${itemIndex + 1}`}>
-                                    <input
-                                        value={item.milestone}
-                                        onChange={(event) => update(['pages', 'investment', 'paymentSchedule', itemIndex, 'milestone'], event.target.value)}
-                                    />
-                                </Field>
-                                <Field label={`Milestone ${itemIndex + 1} Detail`}>
-                                    <textarea
-                                        rows={3}
-                                        value={item.detail}
-                                        onChange={(event) => update(['pages', 'investment', 'paymentSchedule', itemIndex, 'detail'], event.target.value)}
-                                    />
-                                </Field>
-                            </div>
-                        ))}
+                    <div>
+                        <span>Title</span>
+                        <strong>{proposal.title}</strong>
+                    </div>
+                    <div>
+                        <span>Pages</span>
+                        <strong>{proposal.pages.length}</strong>
                     </div>
                 </div>
-            </Section>
 
-            <Section title="Page 5: Next Steps" description="Final CTA flow and step-by-step rollout.">
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    <Field label="Top Label">
-                        <input
-                            value={nextSteps.eyebrow}
-                            onChange={(event) => update(['pages', 'nextSteps', 'eyebrow'], event.target.value)}
-                        />
-                    </Field>
-                    <Field label="Kicker">
-                        <input
-                            value={nextSteps.kicker}
-                            onChange={(event) => update(['pages', 'nextSteps', 'kicker'], event.target.value)}
-                        />
-                    </Field>
-                </div>
-
-                <Field label="Page Heading">
-                    <input
-                        value={nextSteps.title}
-                        onChange={(event) => update(['pages', 'nextSteps', 'title'], event.target.value)}
-                    />
-                </Field>
-
-                <Field label="Intro Paragraph">
-                    <textarea
-                        rows={3}
-                        value={nextSteps.intro}
-                        onChange={(event) => update(['pages', 'nextSteps', 'intro'], event.target.value)}
-                    />
-                </Field>
-
-                <div className="proposal-builder-grid proposal-builder-grid--two">
-                    {nextSteps.steps.map((step, stepIndex) => (
-                        <div key={stepIndex} className="proposal-builder-card">
-                            <Field label={`Step ${stepIndex + 1} Number`}>
-                                <input
-                                    value={step.number}
-                                    onChange={(event) => update(['pages', 'nextSteps', 'steps', stepIndex, 'number'], event.target.value)}
-                                />
-                            </Field>
-                            <Field label={`Step ${stepIndex + 1} Title`}>
-                                <input
-                                    value={step.title}
-                                    onChange={(event) => update(['pages', 'nextSteps', 'steps', stepIndex, 'title'], event.target.value)}
-                                />
-                            </Field>
-                            <Field label={`Step ${stepIndex + 1} Text`}>
-                                <textarea
-                                    rows={4}
-                                    value={step.text}
-                                    onChange={(event) => update(['pages', 'nextSteps', 'steps', stepIndex, 'text'], event.target.value)}
-                                />
-                            </Field>
-                        </div>
+                <div className="proposal-builder-page-list">
+                    {proposal.pages.map((page) => (
+                        <article key={`${page.page}-${page.title}`}>
+                            <span>{page.page}</span>
+                            <h3>{page.title}</h3>
+                            <p>{page.eyebrow}</p>
+                        </article>
                     ))}
                 </div>
             </Section>
