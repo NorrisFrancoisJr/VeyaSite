@@ -242,6 +242,9 @@ export default async function handler(request, response) {
     if (!process.env.OPENAI_API_KEY) {
         response.status(500).json({
             error: 'OPENAI_API_KEY is not set on the server.',
+            vercelEnv: process.env.VERCEL_ENV || 'unknown',
+            gitBranch: process.env.VERCEL_GIT_COMMIT_REF || 'unknown',
+            deploymentUrl: process.env.VERCEL_URL || 'unknown',
         });
         return;
     }
