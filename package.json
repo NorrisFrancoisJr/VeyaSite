@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "export:proposal": "node scripts/export-proposal-pdf.mjs",
+    "export:invoice": "node scripts/export-invoice-pdf.mjs",
+    "invoice:new": "node scripts/create-invoice-record.mjs",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

@@ -1,0 +1,50 @@
+{
+  "slug": "tipsy-parrot-recap-301",
+  "invoiceNumber": "301",
+  "currency": "XCD",
+  "invoiceDate": "April 21, 2026",
+  "paymentDue": "April 21, 2026",
+  "sender": {
+    "name": "CaptureCutColor",
+    "address": [
+      "Roseau",
+      "Dominica"
+    ],
+    "phone": "767 265 1689",
+    "email": "norrisfrancoisjr.com"
+  },
+  "billTo": {
+    "name": "Tipsy Parrot"
+  },
+  "items": [
+    {
+      "description": "60 second recap video",
+      "details": "Full amount due now.",
+      "quantity": 1,
+      "price": 1250
+    }
+  ],
+  "notes": {
+    "terms": [
+      "Make all cheques payable to Norris Francois Jr"
+    ],
+    "banking": [
+      [
+        "Account Name",
+        "Norris Francois Jr"
+      ],
+      [
+        "Account Number",
+        "800006298"
+      ],
+      [
+        "Mobile Number",
+        "767-265-1689"
+      ]
+    ],
+    "footer": [
+      "Wire transfer details attached separately",
+      "NB: Price in XCD. Banking fees handled by client."
+    ]
+  }
+}
