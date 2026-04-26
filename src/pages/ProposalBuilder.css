@@ -1,0 +1,287 @@
+.proposal-builder {
+    min-height: 100vh;
+    padding: 32px 20px 64px;
+    background: #f6f4ef;
+    color: #2e2e2e;
+    font-family: "Barlow Condensed", sans-serif;
+}
+
+.proposal-builder-hero {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto 28px;
+    padding: 28px;
+    border: 1px solid rgba(46, 46, 46, 0.12);
+    border-radius: 8px;
+    background: #fdfefa;
+}
+
+.proposal-builder-hero p,
+.proposal-builder-section-heading p,
+.proposal-builder-field span,
+.proposal-builder-card h3 {
+    margin: 0;
+    color: #6e6353;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.proposal-builder-hero h1 {
+    margin: 12px 0 14px;
+    font-family: "Bodoni Moda", serif;
+    font-size: 54px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 0.96;
+}
+
+.proposal-builder-hero span {
+    display: block;
+    max-width: 580px;
+    color: #6e6353;
+    font-size: 20px;
+    line-height: 1.15;
+}
+
+.proposal-builder-actions {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+}
+
+.proposal-builder-actions a,
+.proposal-builder-actions button,
+.proposal-builder-import {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(46, 46, 46, 0.14);
+    border-radius: 8px;
+    background: #fdfefa;
+    color: #2e2e2e;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 16px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.proposal-builder-actions a:first-child,
+.proposal-builder-actions a:nth-child(2),
+.proposal-builder-ai-actions button {
+    background: #384da8;
+    border-color: #384da8;
+    color: #fdfefa;
+}
+
+.proposal-builder-actions button:disabled,
+.proposal-builder-ai-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.68;
+}
+
+.proposal-builder-import {
+    position: relative;
+    overflow: hidden;
+}
+
+.proposal-builder-import input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.proposal-builder-section {
+    max-width: 1200px;
+    margin: 0 auto 18px;
+    padding: 24px 28px 28px;
+    border: 1px solid rgba(46, 46, 46, 0.12);
+    border-radius: 8px;
+    background: #fdfefa;
+}
+
+.proposal-builder-section-heading h2 {
+    margin: 10px 0 10px;
+    font-family: "Bodoni Moda", serif;
+    font-size: 38px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 0.98;
+}
+
+.proposal-builder-section-heading p {
+    font-size: 18px;
+    line-height: 1.12;
+    text-transform: none;
+}
+
+.proposal-builder-section-body {
+    margin-top: 18px;
+}
+
+.proposal-builder-ai-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.proposal-builder-ai-actions {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 14px;
+}
+
+.proposal-builder-ai-actions button {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #384da8;
+    border-radius: 8px;
+    padding: 0 16px;
+    font: inherit;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.proposal-builder-ai-actions span {
+    color: rgba(110, 99, 83, 0.9);
+    font-size: 17px;
+    line-height: 1.1;
+}
+
+.proposal-builder-status,
+.proposal-builder-error,
+.proposal-builder-notes {
+    grid-column: 1 / -1;
+    margin: 0;
+    border-left: 4px solid #63b332;
+    background: rgba(99, 179, 50, 0.1);
+    color: #2e2e2e;
+    padding: 12px 14px;
+    font-size: 18px;
+    line-height: 1.14;
+}
+
+.proposal-builder-error {
+    border-left-color: #e51b0f;
+    background: rgba(229, 27, 15, 0.09);
+}
+
+.proposal-builder-notes {
+    display: grid;
+    gap: 7px;
+}
+
+.proposal-builder-notes h3 {
+    margin: 0;
+    color: #2e2e2e;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.proposal-builder-notes p {
+    margin: 0;
+}
+
+.proposal-builder-spin {
+    animation: proposal-builder-spin 0.9s linear infinite;
+}
+
+@keyframes proposal-builder-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.proposal-builder-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.proposal-builder-grid--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.proposal-builder-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.proposal-builder-field {
+    display: grid;
+    gap: 8px;
+}
+
+.proposal-builder-field input,
+.proposal-builder-field textarea {
+    width: 100%;
+    border: 1px solid rgba(46, 46, 46, 0.14);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #2e2e2e;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 20px;
+    line-height: 1.12;
+}
+
+.proposal-builder-field textarea {
+    resize: vertical;
+}
+
+.proposal-builder-field small {
+    color: rgba(110, 99, 83, 0.9);
+    font-size: 15px;
+    line-height: 1.1;
+}
+
+.proposal-builder-card {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    border-radius: 8px;
+    background: rgba(56, 77, 168, 0.06);
+    padding: 16px;
+}
+
+.proposal-builder-mini-stack {
+    display: grid;
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .proposal-builder-hero,
+    .proposal-builder-ai-panel,
+    .proposal-builder-grid--two,
+    .proposal-builder-grid--three {
+        grid-template-columns: 1fr;
+    }
+
+    .proposal-builder-ai-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .proposal-builder {
+        padding: 18px 12px 40px;
+    }
+
+    .proposal-builder-hero h1 {
+        font-size: 40px;
+    }
+
+    .proposal-builder-section h2 {
+        font-size: 30px;
+    }
+}

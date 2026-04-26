@@ -1,0 +1,41 @@
+{
+  "slug": "safe-haven-deposit-300",
+  "aliases": ["safe-haven-deposit"],
+  "invoiceNumber": "300",
+  "currency": "XCD",
+  "invoiceDate": "April 21, 2026",
+  "paymentDue": "April 21, 2026",
+  "sender": {
+    "name": "CaptureCutColor",
+    "address": ["Roseau", "Dominica"],
+    "phone": "767 265 1689",
+    "email": "norrisfrancoisjr.com"
+  },
+  "billTo": {
+    "name": "Safe Haven Real Estate",
+    "address": ["19 Elliot Avenue", "Pottersville"],
+    "phone": "(767) 440-0878",
+    "mobile": "(767) 613-2439",
+    "email": "safehavenrealestate@gmail.com"
+  },
+  "items": [
+    {
+      "description": "Deposit for Safe Haven video campaign",
+      "details": "30% deposit on EC$5,000.00 campaign total.",
+      "quantity": 1,
+      "price": 1500
+    }
+  ],
+  "notes": {
+    "terms": ["Make all cheques payable to Norris Francois Jr"],
+    "banking": [
+      ["Account Name", "Norris Francois Jr"],
+      ["Account Number", "800006298"],
+      ["Mobile Number", "767-265-1689"]
+    ],
+    "footer": [
+      "Wire transfer details attached separately",
+      "NB: Price in XCD. Banking fees handled by client."
+    ]
+  }
+}
